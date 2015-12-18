@@ -8,5 +8,6 @@ class Tags
 
     public static readonly string Player = "Player";
     public static readonly string Fire = "Fire";
+    public static string Sword = "Sword";
 }
 

@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     public string inputSet = "P1";
     public float movementSpeed = 2;
     public float jumpForce = 1;
+    public float meleeForce = 1;
     private string horizontalAxisName = "Horizontal_";
     private string fireName = "Fire_";
     private string altFireName = "AltFire_";
@@ -68,7 +69,7 @@ public class PlayerController : MonoBehaviour
         Flip(direction);
     }
 
-    private void Flip(float direction)
+    public void Flip(float direction)
     {
         if (direction != transform.localScale.x)
         {
@@ -105,6 +106,15 @@ public class PlayerController : MonoBehaviour
         anim.SetTrigger("fire");
     }
 
+    public void GetHit(GameObject otherPlayer)
+    {
+        var hitDirection = Mathf.Sign(transform.position.x - otherPlayer.transform.position.x);
+        body.AddForce(hitDirection * transform.right * meleeForce, ForceMode2D.Impulse);
+        anim.SetTrigger("hit");
+
+        Flip(hitDirection);
+    }
+
     public void Die()
     {
         dead = true;
@@ -113,6 +123,7 @@ public class PlayerController : MonoBehaviour
 
     public void ReviveAndDisarm()
     {
+        body.AddForce(new Vector2(), ForceMode2D.Impulse);
         dead = false;
         anim.SetTrigger("revive");
         //Disarm;
@@ -120,10 +131,17 @@ public class PlayerController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        print("We are here");
+
         if (col.gameObject.tag == Tags.Fire)
         {
             Die();
+        }
+
+        if (col.gameObject.tag == Tags.Sword)
+        {
+            var hitPlayer = col.gameObject.transform.parent.gameObject;
+            if (gameObject != hitPlayer)
+                GetHit(hitPlayer);
         }
     }
 }
