@@ -3,7 +3,6 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
-
     public string inputSet = "P1";
     public float movementSpeed = 2;
     public float jumpForce = 1;
@@ -121,11 +120,16 @@ public class PlayerController : MonoBehaviour
         anim.SetTrigger("dead");
     }
 
-    public void ReviveAndDisarm()
+    public void Revive()
     {
         body.AddForce(new Vector2(), ForceMode2D.Impulse);
         dead = false;
         anim.SetTrigger("revive");
+        //Disarm;
+    }
+
+    public void Disarm()
+    {
         //Disarm;
     }
 
@@ -143,5 +147,10 @@ public class PlayerController : MonoBehaviour
             if (gameObject != hitPlayer)
                 GetHit(hitPlayer);
         }
+    }
+
+    public bool IsDead()
+    {
+        return dead;
     }
 }
