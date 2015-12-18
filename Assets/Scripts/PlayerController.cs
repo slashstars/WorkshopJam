@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D body;
     private Animator anim;
     private float facingDirection;
+    private bool dead = false;
 
     // Use this for initialization
     void Start()
@@ -33,25 +34,29 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         float h = Input.GetAxis(horizontalAxisName);
-        if (Mathf.Abs(h) > 0.2)
+        if (Mathf.Abs(h) > 0.2 && !dead)
             Move(h);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown(fireName))
-            Fire();
-
-        if (Input.GetButtonDown(altFireName))
-            AltFire();
-
-        if (Input.GetButtonDown(jumpName))
-            Jump();
-
-        if (!IsGrounded() || !IsMoving())
+        if (!dead)
         {
-            anim.SetBool("run", false);
+
+            if (Input.GetButtonDown(fireName))
+                Fire();
+
+            if (Input.GetButtonDown(altFireName))
+                AltFire();
+
+            if (Input.GetButtonDown(jumpName))
+                Jump();
+
+            if (!IsGrounded() || !IsMoving())
+            {
+                anim.SetBool("run", false);
+            }
         }
     }
 
@@ -98,5 +103,27 @@ public class PlayerController : MonoBehaviour
     private void AltFire()
     {
         anim.SetTrigger("fire");
+    }
+
+    public void Die()
+    {
+        dead = true;
+        anim.SetTrigger("dead");
+    }
+
+    public void ReviveAndDisarm()
+    {
+        dead = false;
+        anim.SetTrigger("revive");
+        //Disarm;
+    }
+
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        print("We are here");
+        if (col.gameObject.tag == Tags.Fire)
+        {
+            Die();
+        }
     }
 }
