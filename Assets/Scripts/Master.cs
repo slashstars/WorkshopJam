@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
-public class Initialize : MonoBehaviour {
-
+public class Master : MonoBehaviour
+{
     public Transform SmallPlatformPrefab;
     public Transform MediumPlatformPrefab;
     public Transform LargePlatformPrefab;
@@ -19,10 +19,9 @@ public class Initialize : MonoBehaviour {
     private PlayerController playerOneController;
     private PlayerController playerTwoController;
 
-
-
     // Use this for initialization
-    void Awake () {
+    void Awake()
+    {
         Instantiate(SmallPlatformPrefab, middlePlatformPosition, transform.rotation);
         Instantiate(SmallPlatformPrefab, leftPlatformPosition, transform.rotation);
         Instantiate(SmallPlatformPrefab, rightPlatformPosition, transform.rotation);
@@ -40,7 +39,7 @@ public class Initialize : MonoBehaviour {
 
     void Update()
     {
-        if(playerOneController.IsDead() || playerTwoController.IsDead())
+        if (playerOneController.IsDead() || playerTwoController.IsDead())
         {
             Reset();
         }
@@ -48,7 +47,7 @@ public class Initialize : MonoBehaviour {
 
     void SpawnPlayer(PlayerController controller, float direction, Vector3 position, string inputSet)
     {
-        if (controller.IsDead())controller.Revive();
+        if (controller.IsDead()) controller.Revive();
         controller.Disarm();
         controller.transform.position = position;
         controller.Flip(direction);

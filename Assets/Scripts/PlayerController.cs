@@ -118,11 +118,11 @@ public class PlayerController : MonoBehaviour
     {
         dead = true;
         anim.SetTrigger("dead");
+
     }
 
     public void Revive()
     {
-        body.AddForce(new Vector2(), ForceMode2D.Impulse);
         dead = false;
         anim.SetTrigger("revive");
         //Disarm;
