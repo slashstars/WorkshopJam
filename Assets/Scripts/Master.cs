@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class Master : MonoBehaviour
 {
@@ -41,7 +42,7 @@ public class Master : MonoBehaviour
     {
         if (playerOneController.IsDead() || playerTwoController.IsDead())
         {
-            Reset();
+            Invoke("Reset", 3);
         }
     }
 

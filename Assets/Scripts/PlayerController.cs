@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     public float movementSpeed = 2;
     public float jumpForce = 1;
     public float meleeForce = 1;
+    public float cooldown = 2;
     private string horizontalAxisName = "Horizontal_";
     private string fireName = "Fire_";
     private string altFireName = "AltFire_";
@@ -15,6 +16,7 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
     private float facingDirection;
     private bool dead = false;
+    private float currentCooldownValue;
 
     // Use this for initialization
     void Start()
@@ -29,6 +31,8 @@ public class PlayerController : MonoBehaviour
         fireName += inputSet;
         altFireName += inputSet;
         jumpName += inputSet;
+
+        currentCooldownValue = 0;
     }
 
     void FixedUpdate()
@@ -44,10 +48,10 @@ public class PlayerController : MonoBehaviour
         if (!dead)
         {
 
-            if (Input.GetButtonDown(fireName))
+            if (Input.GetButtonDown(fireName) && currentCooldownValue <= 0)
                 Fire();
 
-            if (Input.GetButtonDown(altFireName))
+            if (Input.GetButtonDown(altFireName) && currentCooldownValue <= 0)
                 AltFire();
 
             if (Input.GetButtonDown(jumpName))
@@ -58,6 +62,9 @@ public class PlayerController : MonoBehaviour
                 anim.SetBool("run", false);
             }
         }
+
+        if (currentCooldownValue > 0)
+            currentCooldownValue -= Time.deltaTime;
     }
 
     private void Move(float axis)
@@ -98,12 +105,19 @@ public class PlayerController : MonoBehaviour
     private void Fire()
     {
         anim.SetTrigger("melee");
+        ResetCooldown();
     }
 
     private void AltFire()
     {
         anim.SetTrigger("fire");
     }
+
+    private void ResetCooldown()
+    {
+        currentCooldownValue = cooldown;
+    }
+
 
     public void GetHit(GameObject otherPlayer)
     {
@@ -118,14 +132,12 @@ public class PlayerController : MonoBehaviour
     {
         dead = true;
         anim.SetTrigger("dead");
-
     }
 
     public void Revive()
     {
         dead = false;
         anim.SetTrigger("revive");
-        //Disarm;
     }
 
     public void Disarm()
