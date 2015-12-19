@@ -36,7 +36,6 @@ ehthumbs.db
 # ===== #
 # Build #
 # ===== #
-
+**_Data/
 *.exe
 *.pdb
-*_Data/
