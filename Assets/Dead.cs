@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DeathByFire : StateMachineBehaviour
+public class Dead : StateMachineBehaviour
 {
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        //Play sound;
+        animator.transform.Find("Audio").GetComponent<Sounds>().PlayDeadSound();
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
