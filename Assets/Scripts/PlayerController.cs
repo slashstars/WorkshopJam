@@ -3,20 +3,23 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
+    public Transform bulletPrefab;
     public string inputSet = "P1";
     public float movementSpeed = 2;
     public float jumpForce = 1;
-    public float meleeForce = 1;
-    public float cooldown = 2;
+    public float meleeForce = 5;
+    public float fireForce = 5;
+    public float cooldown = 0;
     private string horizontalAxisName = "Horizontal_";
     private string fireName = "Fire_";
     private string altFireName = "AltFire_";
     private string jumpName = "Jump_";
     private Rigidbody2D body;
     private Animator anim;
-    private float facingDirection;
     private bool dead = false;
     private float currentCooldownValue;
+    //private readonly Vector3 bulletOffset = new Vector3(0.137f, 0.011f, 0);
+    private readonly Vector3 bulletOffset = new Vector3(0.1f, 0.011f, 0);
 
     // Use this for initialization
     void Start()
@@ -24,8 +27,6 @@ public class PlayerController : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
 
         anim = GetComponent<Animator>();
-
-        facingDirection = Mathf.Sign(transform.localScale.x);
 
         horizontalAxisName += inputSet;
         fireName += inputSet;
@@ -49,10 +50,10 @@ public class PlayerController : MonoBehaviour
         {
 
             if (Input.GetButtonDown(fireName) && currentCooldownValue <= 0)
-                Fire();
+                Melee();
 
             if (Input.GetButtonDown(altFireName) && currentCooldownValue <= 0)
-                AltFire();
+                Fire();
 
             if (Input.GetButtonDown(jumpName))
                 Jump();
@@ -102,15 +103,22 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Fire()
+    private void Melee()
     {
         anim.SetTrigger("melee");
         ResetCooldown();
     }
 
-    private void AltFire()
+    private void Fire()
     {
         anim.SetTrigger("fire");
+
+        var position = new Vector3(transform.position.x + transform.localScale.x * bulletOffset.x,
+            transform.position.y - bulletOffset.y, 0);
+        Transform bullet = (Transform)Instantiate(bulletPrefab, position, transform.rotation);
+        bullet.GetComponent<Rigidbody2D>().AddForce(new Vector3(transform.localScale.x * 4, 0, 0), ForceMode2D.Impulse);
+
+        ResetCooldown();
     }
 
     private void ResetCooldown()
@@ -119,10 +127,9 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public void GetHit(GameObject otherPlayer)
+    public void GetHit(float hitDirection, float pushForce)
     {
-        var hitDirection = Mathf.Sign(transform.position.x - otherPlayer.transform.position.x);
-        body.AddForce(hitDirection * transform.right * meleeForce, ForceMode2D.Impulse);
+        body.AddForce(hitDirection * transform.right * pushForce, ForceMode2D.Impulse);
         anim.SetTrigger("hit");
 
         Flip(hitDirection);
@@ -147,17 +154,27 @@ public class PlayerController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D col)
     {
-
-        if (col.gameObject.tag == Tags.Fire)
+        var other = col.gameObject;
+        if (other.tag == Tags.Fire)
         {
             Die();
         }
 
-        if (col.gameObject.tag == Tags.Sword)
+        if (other.tag == Tags.Sword)
         {
-            var hitPlayer = col.gameObject.transform.parent.gameObject;
+            var hitPlayer = other.transform.parent.gameObject;
+
             if (gameObject != hitPlayer)
-                GetHit(hitPlayer);
+            {
+                var hitDirection = Mathf.Sign(transform.position.x - other.transform.position.x);
+                GetHit(hitDirection, meleeForce);
+            }                
+        }
+
+        if (other.tag == Tags.Bullet)
+        {
+            var hitDirection = Mathf.Sign(other.gameObject.GetComponent<Rigidbody2D>().velocity.x);
+            GetHit(hitDirection, fireForce);
         }
     }
 
