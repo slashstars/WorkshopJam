@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     public float meleeForce = 5;
     public float fireForce = 5;
     public float cooldown = 0;
+    public string name = "P1";
     private string horizontalAxisName = "Horizontal_";
     private string fireName = "Fire_";
     private string altFireName = "AltFire_";
@@ -20,6 +21,8 @@ public class PlayerController : MonoBehaviour
     private float currentCooldownValue;
     //private readonly Vector3 bulletOffset = new Vector3(0.137f, 0.011f, 0);
     private readonly Vector3 bulletOffset = new Vector3(0.1f, 0.011f, 0);
+
+    private int score = 0;
 
     // Use this for initialization
     void Start()
@@ -126,9 +129,12 @@ public class PlayerController : MonoBehaviour
         currentCooldownValue = cooldown;
     }
 
-
     public void GetHit(float hitDirection, float pushForce)
     {
+        print("f" + hitDirection);
+        print("h" + pushForce);
+        print("v" + transform.right);
+
         body.AddForce(hitDirection * transform.right * pushForce, ForceMode2D.Impulse);
         anim.SetTrigger("hit");
 
@@ -168,12 +174,14 @@ public class PlayerController : MonoBehaviour
             {
                 var hitDirection = Mathf.Sign(transform.position.x - other.transform.position.x);
                 GetHit(hitDirection, meleeForce);
-            }                
+            }
         }
 
         if (other.tag == Tags.Bullet)
         {
+            print("bullet");
             var hitDirection = Mathf.Sign(other.gameObject.GetComponent<Rigidbody2D>().velocity.x);
+            print(hitDirection);
             GetHit(hitDirection, fireForce);
         }
     }
@@ -182,4 +190,10 @@ public class PlayerController : MonoBehaviour
     {
         return dead;
     }
+
+    public int IncrementScore()
+    {
+        return ++score;
+    }
+
 }

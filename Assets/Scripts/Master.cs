@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class Master : MonoBehaviour
@@ -9,6 +10,7 @@ public class Master : MonoBehaviour
     public Transform DeadlyFloorPrefab;
     public Transform PlayerPrefab;
     public Transform WallPrefab;
+    public Transform GuiPrefab;
 
     private readonly Vector3 basePlatformPosition = new Vector3(-0.805f, -0.5f, 0);
     private readonly Vector3 leftPlatformPosition = new Vector3(-1.115f, -0.05f, 0);
@@ -22,6 +24,7 @@ public class Master : MonoBehaviour
 
     private PlayerController playerOneController;
     private PlayerController playerTwoController;
+    private GUI gui;
 
     // Use this for initialization
     void Awake()
@@ -33,6 +36,8 @@ public class Master : MonoBehaviour
         Instantiate(DeadlyFloorPrefab, deadlyFloorPosition, transform.rotation);
         Instantiate(WallPrefab, leftFloorPosition, transform.rotation);
         Instantiate(WallPrefab, rightFloorPosition, transform.rotation);
+        Transform canvas = (Transform)Instantiate(GuiPrefab, transform.position, transform.rotation);
+        gui = canvas.GetComponent<GUI>();
 
         playerOneController = ((Transform)Instantiate(PlayerPrefab, playerOneSpawnPosition, transform.rotation)).GetComponent<PlayerController>();
         playerTwoController = ((Transform)Instantiate(PlayerPrefab, playerTwoSpawnPosition, transform.rotation)).GetComponent<PlayerController>();
@@ -47,7 +52,13 @@ public class Master : MonoBehaviour
     {
         if (playerOneController.IsDead() || playerTwoController.IsDead())
         {
-           Invoke("Reset", 3);
+            var deadP = playerOneController.IsDead() ? playerOneController : playerTwoController;
+            var liveP = playerOneController.IsDead() ? playerTwoController : playerOneController;
+
+            liveP.IncrementScore();
+            gui.SetTempCenterMessage(deadP + " DEAD!", 3);
+
+            Invoke("Reset", 3);
         }
     }
 
