@@ -14,9 +14,8 @@ public class GUI : MonoBehaviour
     {
         message = transform.Find("CenterMessage").GetComponent<Text>();
         message.enabled = false;
-
-        Text P1Score = transform.Find("P1Score").GetComponent<Text>();
-        Text P2Score = transform.Find("P2Score").GetComponent<Text>();
+        P1Score = transform.Find("P1Score").GetComponent<Text>();
+        P2Score = transform.Find("P2Score").GetComponent<Text>();
     }
 
     // Update is called once per frame
@@ -31,12 +30,13 @@ public class GUI : MonoBehaviour
         StartCoroutine(ShowMessage(seconds));
     }
 
-    public void SetPlayerScore(int playerNumber, string newScore)
+    public void SetPlayerScore(PlayerMeta meta)
     {
-        if (playerNumber == 1)
-            P1Score.text = newScore;
+        string newText = meta.playerName + ": " + meta.GetScore();
+        if (meta.playerID == PlayerID.P1)
+            P1Score.text = newText;
         else
-            P2Score.text = newScore;
+            P2Score.text = newText;
     }
 
     IEnumerator ShowMessage(float seconds)

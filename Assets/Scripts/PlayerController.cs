@@ -4,44 +4,31 @@ using System.Collections;
 public class PlayerController : MonoBehaviour
 {
     public Transform bulletPrefab;
-    public string inputSet = "P1";
+    private InputSet inputSet;
     public float movementSpeed = 2;
     public float jumpForce = 1;
     public float meleeForce = 5;
     public float fireForce = 5;
     public float cooldown = 0;
-    public string name = "P1";
-    private string horizontalAxisName = "Horizontal_";
-    private string fireName = "Fire_";
-    private string altFireName = "AltFire_";
-    private string jumpName = "Jump_";
     private Rigidbody2D body;
     private Animator anim;
     private bool dead = false;
     private float currentCooldownValue;
-    //private readonly Vector3 bulletOffset = new Vector3(0.137f, 0.011f, 0);
-    private readonly Vector3 bulletOffset = new Vector3(0.1f, 0.011f, 0);
-
-    private int score = 0;
+    private readonly Vector3 bulletOffset = new Vector3(0.1f, 0.011f, 0);   
 
     // Use this for initialization
     void Start()
     {
         body = GetComponent<Rigidbody2D>();
-
         anim = GetComponent<Animator>();
-
-        horizontalAxisName += inputSet;
-        fireName += inputSet;
-        altFireName += inputSet;
-        jumpName += inputSet;
-
+        var meta = GetComponent<PlayerMeta>();
+        inputSet = new InputSet(meta.playerID);
         currentCooldownValue = 0;
     }
 
     void FixedUpdate()
     {
-        float h = Input.GetAxis(horizontalAxisName);
+        float h = Input.GetAxis(inputSet.horizontalAxis);
         if (Mathf.Abs(h) > 0.2 && !dead)
             Move(h);
     }
@@ -51,14 +38,13 @@ public class PlayerController : MonoBehaviour
     {
         if (!dead)
         {
-
-            if (Input.GetButtonDown(fireName) && currentCooldownValue <= 0)
+            if (Input.GetButtonDown(inputSet.fire) && currentCooldownValue <= 0)
                 Melee();
 
-            if (Input.GetButtonDown(altFireName) && currentCooldownValue <= 0)
+            if (Input.GetButtonDown(inputSet.altFire) && currentCooldownValue <= 0)
                 Fire();
 
-            if (Input.GetButtonDown(jumpName))
+            if (Input.GetButtonDown(inputSet.jump))
                 Jump();
 
             if (!IsGrounded() || !IsMoving())
@@ -131,10 +117,6 @@ public class PlayerController : MonoBehaviour
 
     public void GetHit(float hitDirection, float pushForce)
     {
-        print("f" + hitDirection);
-        print("h" + pushForce);
-        print("v" + transform.right);
-
         body.AddForce(hitDirection * transform.right * pushForce, ForceMode2D.Impulse);
         anim.SetTrigger("hit");
 
@@ -179,9 +161,7 @@ public class PlayerController : MonoBehaviour
 
         if (other.tag == Tags.Bullet)
         {
-            print("bullet");
             var hitDirection = Mathf.Sign(other.gameObject.GetComponent<Rigidbody2D>().velocity.x);
-            print(hitDirection);
             GetHit(hitDirection, fireForce);
         }
     }
@@ -190,10 +170,4 @@ public class PlayerController : MonoBehaviour
     {
         return dead;
     }
-
-    public int IncrementScore()
-    {
-        return ++score;
-    }
-
 }

@@ -4,6 +4,12 @@ using System.Collections;
 
 public class Master : MonoBehaviour
 {
+    string[] endTexts = new string[] { "DEAD", "VANQUISHED", "TOASTED", "SLAUGHTERED", "KILLED",
+        "DEFEATED", "CREMATED", "NEUTRALIZED", "VAPORIZED", "ANNIHILATED", "DESTROYED", "ROASTED" };
+
+    GameState currentState = GameState.RoundStarting;
+    GameState lastState = GameState.None;
+
     public Transform SmallPlatformPrefab;
     public Transform MediumPlatformPrefab;
     public Transform LargePlatformPrefab;
@@ -24,6 +30,10 @@ public class Master : MonoBehaviour
 
     private PlayerController playerOneController;
     private PlayerController playerTwoController;
+
+    private PlayerMeta playerOneMeta;
+    private PlayerMeta playerTwoMeta;
+
     private GUI gui;
 
     // Use this for initialization
@@ -36,44 +46,66 @@ public class Master : MonoBehaviour
         Instantiate(DeadlyFloorPrefab, deadlyFloorPosition, transform.rotation);
         Instantiate(WallPrefab, leftFloorPosition, transform.rotation);
         Instantiate(WallPrefab, rightFloorPosition, transform.rotation);
-        Transform canvas = (Transform)Instantiate(GuiPrefab, transform.position, transform.rotation);
-        gui = canvas.GetComponent<GUI>();
 
-        playerOneController = ((Transform)Instantiate(PlayerPrefab, playerOneSpawnPosition, transform.rotation)).GetComponent<PlayerController>();
-        playerTwoController = ((Transform)Instantiate(PlayerPrefab, playerTwoSpawnPosition, transform.rotation)).GetComponent<PlayerController>();
-    }
+        gui = ((Transform)Instantiate(GuiPrefab, transform.position, transform.rotation)).GetComponent<GUI>();
 
-    void Start()
-    {
-        Reset();
+        var playerOne = (Transform)Instantiate(PlayerPrefab, playerOneSpawnPosition, transform.rotation);
+        var playerTwo = (Transform)Instantiate(PlayerPrefab, playerTwoSpawnPosition, transform.rotation);
+        playerOneController = playerOne.GetComponent<PlayerController>();
+        playerTwoController = playerTwo.GetComponent<PlayerController>();
+        playerOneMeta = InitMeta(playerOne, "P1", PlayerID.P1);
+        playerTwoMeta = InitMeta(playerTwo, "P2", PlayerID.P2);
     }
 
     void Update()
     {
         if (playerOneController.IsDead() || playerTwoController.IsDead())
         {
-            var deadP = playerOneController.IsDead() ? playerOneController : playerTwoController;
-            var liveP = playerOneController.IsDead() ? playerTwoController : playerOneController;
+            currentState = GameState.RoundEnding;
+        }
 
-            liveP.IncrementScore();
-            gui.SetTempCenterMessage(deadP + " DEAD!", 3);
+        if (currentState != lastState)
+        {
+            lastState = currentState;
+            if (currentState == GameState.RoundStarting)
+            {
+                Reset();
+            }
+            if (currentState == GameState.RoundEnding)
+            {
+                var deadMeta = playerOneController.IsDead() ? playerOneMeta : playerTwoMeta;
+                var aliveMeta = playerOneController.IsDead() ? playerTwoMeta : playerOneMeta;
+                aliveMeta.IncrementScore();
 
-            Invoke("Reset", 3);
+                gui.SetTempCenterMessage(deadMeta.playerName + " " + endTexts[Random.Range(0, endTexts.Length-1)] + "!", 3);
+
+                Invoke("Reset", 3);
+            }
         }
     }
 
-    void SpawnPlayer(PlayerController controller, float direction, Vector3 position, string inputSet)
+    void SpawnPlayer(PlayerController controller, float direction, Vector3 position)
     {
         if (controller.IsDead()) controller.Revive();
         controller.Disarm();
         controller.transform.position = position;
         controller.Flip(direction);
-        controller.inputSet = inputSet;
     }
 
     void Reset()
     {
-        SpawnPlayer(playerOneController, 1, playerOneSpawnPosition, "P1");
-        SpawnPlayer(playerTwoController, -1, playerTwoSpawnPosition, "P2");
+        gui.SetPlayerScore(playerOneMeta);
+        gui.SetPlayerScore(playerTwoMeta);
+        SpawnPlayer(playerOneController, 1, playerOneSpawnPosition);
+        SpawnPlayer(playerTwoController, -1, playerTwoSpawnPosition);
+        currentState = GameState.RoundInProgress;
+    }
+
+    private PlayerMeta InitMeta(Transform player, string name, PlayerID id)
+    {
+        var meta = player.GetComponent<PlayerMeta>();
+        meta.playerName = name;
+        meta.playerID = id;
+        return meta;
     }
 }
