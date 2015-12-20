@@ -67,8 +67,8 @@ public class Master : MonoBehaviour
         var playerTwo = (Transform)Instantiate(GuyPrefab, playerTwoSpawnPosition, transform.rotation);
         playerOneController = playerOne.GetComponent<PlayerController>();
         playerTwoController = playerTwo.GetComponent<PlayerController>();
-        playerOneMeta = InitMeta(playerOne, "P1", PlayerID.P1);
-        playerTwoMeta = InitMeta(playerTwo, "P2", PlayerID.P2);
+        playerOneMeta = InitMeta(playerOne, "Ninja", PlayerID.P1);
+        playerTwoMeta = InitMeta(playerTwo, "Thug", PlayerID.P2);
     }
 
     void Update()
