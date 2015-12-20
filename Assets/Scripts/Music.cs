@@ -20,15 +20,15 @@ public class Music : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         currentSong = Resources.Load<AudioClip>(GetRandomSongPathFromPlayList());
         audioSource.PlayOneShot(currentSong);
+
+        print(Time.time);
+        StartCoroutine(LoadNextSong());
+        print(Time.time);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (audioSource.time / currentSong.length > 0.7)
-        {
-            LoadNextSong();
-        }
 
         if (!audioSource.isPlaying)
         {
@@ -37,12 +37,16 @@ public class Music : MonoBehaviour
 
             currentSong = nextSong;
             audioSource.PlayOneShot(currentSong);
+
+            print("1:" + Time.time);
+            StartCoroutine(LoadNextSong());
+            print("1" + Time.time);
         }
     }
 
     private string GetRandomSongPathFromPlayList()
     {
-        int index = Random.Range(0, playList.Count - 1);
+        int index = Random.Range(0, playList.Count);
 
         var songName = playList[index];
         playList.RemoveAt(index);
@@ -68,8 +72,18 @@ public class Music : MonoBehaviour
         }
     }
 
-    private void LoadNextSong()
+    IEnumerator LoadNextSong()
     {
-        nextSong = Resources.Load<AudioClip>(GetRandomSongPathFromPlayList());
+        var res = Resources.LoadAsync<AudioClip>(GetRandomSongPathFromPlayList());
+
+        while (!res.isDone)
+        {
+            print(res.isDone);
+            yield return null;
+        }
+
+        nextSong = (AudioClip)res.asset;
     }
+
+
 }
