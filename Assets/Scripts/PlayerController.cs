@@ -154,7 +154,7 @@ public class PlayerController : MonoBehaviour
 
             if (gameObject != hitPlayer)
             {
-                var hitDirection = Mathf.Sign(transform.position.x - other.transform.position.x);
+                var hitDirection = Mathf.Sign(transform.position.x - hitPlayer.transform.position.x);
                 GetHit(hitDirection, meleeForce);
             }
         }

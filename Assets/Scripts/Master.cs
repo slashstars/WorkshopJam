@@ -14,7 +14,8 @@ public class Master : MonoBehaviour
     public Transform MediumPlatformPrefab;
     public Transform LargePlatformPrefab;
     public Transform DeadlyFloorPrefab;
-    public Transform PlayerPrefab;
+    public Transform GuyPrefab;
+    public Transform NinjaPrefab;
     public Transform WallPrefab;
     public Transform GuiPrefab;
 
@@ -49,8 +50,8 @@ public class Master : MonoBehaviour
 
         gui = ((Transform)Instantiate(GuiPrefab, transform.position, transform.rotation)).GetComponent<GUI>();
 
-        var playerOne = (Transform)Instantiate(PlayerPrefab, playerOneSpawnPosition, transform.rotation);
-        var playerTwo = (Transform)Instantiate(PlayerPrefab, playerTwoSpawnPosition, transform.rotation);
+        var playerOne = (Transform)Instantiate(NinjaPrefab, playerOneSpawnPosition, transform.rotation);
+        var playerTwo = (Transform)Instantiate(GuyPrefab, playerTwoSpawnPosition, transform.rotation);
         playerOneController = playerOne.GetComponent<PlayerController>();
         playerTwoController = playerTwo.GetComponent<PlayerController>();
         playerOneMeta = InitMeta(playerOne, "P1", PlayerID.P1);
