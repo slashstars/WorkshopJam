@@ -18,6 +18,9 @@ public class Master : MonoBehaviour
     public Transform NinjaPrefab;
     public Transform WallPrefab;
     public Transform GuiPrefab;
+    public Transform BackgroundPrefab;
+    public Transform ClockwiseCog;
+    public Transform CounterclockwiseCog;
 
     private readonly Vector3 basePlatformPosition = new Vector3(-0.805f, -0.5f, 0);
     private readonly Vector3 leftPlatformPosition = new Vector3(-1.115f, -0.05f, 0);
@@ -40,11 +43,21 @@ public class Master : MonoBehaviour
     // Use this for initialization
     void Awake()
     {
+        Instantiate(BackgroundPrefab, new Vector3(0, 0, 0), transform.rotation);
+
+        Instantiate(ClockwiseCog, new Vector3(1.28f, 0.218f, 0), transform.rotation);
+        Instantiate(ClockwiseCog, new Vector3(-0.925f, -0.073f, 0), transform.rotation);
+
+        Instantiate(CounterclockwiseCog, new Vector3(0.871f, 0.315f, 0), transform.rotation);
+        Instantiate(CounterclockwiseCog, new Vector3(-0.819f, 0.344f, 0), transform.rotation);
+
         Instantiate(SmallPlatformPrefab, middlePlatformPosition, transform.rotation);
         Instantiate(SmallPlatformPrefab, leftPlatformPosition, transform.rotation);
         Instantiate(SmallPlatformPrefab, rightPlatformPosition, transform.rotation);
         Instantiate(LargePlatformPrefab, basePlatformPosition, transform.rotation);
+
         Instantiate(DeadlyFloorPrefab, deadlyFloorPosition, transform.rotation);
+
         Instantiate(WallPrefab, leftFloorPosition, transform.rotation);
         Instantiate(WallPrefab, rightFloorPosition, transform.rotation);
 
