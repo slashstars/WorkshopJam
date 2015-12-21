@@ -29,8 +29,21 @@ public class Master : MonoBehaviour
     private readonly Vector3 deadlyFloorPosition = new Vector3(-1.925f, -0.86f, 0);
     private readonly Vector3 leftFloorPosition = new Vector3(-2.12f, 0, 0);
     private readonly Vector3 rightFloorPosition = new Vector3(2.12f, 0, 0);
-    private readonly Vector3 playerOneSpawnPosition = new Vector3(-0.72f, -0.26f, 0);
-    private readonly Vector3 playerTwoSpawnPosition = new Vector3(0.72f, -0.26f, 0);
+    
+    private Vector3[] playerOneSpawningPoints = new Vector3[]
+    {
+        new Vector3(-0.72f, -0.26f, 0),
+        new Vector3(-0.95f, 0.19f, 0)
+    };
+
+    private Vector3[] playerTwoSpawningPoints = new Vector3[]
+    {
+        new Vector3(0.72f, -0.26f, 0),
+        new Vector3(0.95f, 0.19f, 0)
+    };
+
+    private int playerOneSpawningIndex = 0;
+    private int playerTwoSpawningIndex = 1;
 
     private PlayerController playerOneController;
     private PlayerController playerTwoController;
@@ -63,8 +76,8 @@ public class Master : MonoBehaviour
 
         gui = ((Transform)Instantiate(GuiPrefab, transform.position, transform.rotation)).GetComponent<GUI>();
 
-        var playerOne = (Transform)Instantiate(NinjaPrefab, playerOneSpawnPosition, transform.rotation);
-        var playerTwo = (Transform)Instantiate(GuyPrefab, playerTwoSpawnPosition, transform.rotation);
+        var playerOne = (Transform)Instantiate(NinjaPrefab, playerOneSpawningPoints[playerOneSpawningIndex], transform.rotation);
+        var playerTwo = (Transform)Instantiate(GuyPrefab, playerTwoSpawningPoints[playerTwoSpawningIndex], transform.rotation);
         playerOneController = playerOne.GetComponent<PlayerController>();
         playerTwoController = playerTwo.GetComponent<PlayerController>();
         playerOneMeta = InitMeta(playerOne, "Ninja", PlayerID.P1);
@@ -110,8 +123,10 @@ public class Master : MonoBehaviour
     {
         gui.SetPlayerScore(playerOneMeta);
         gui.SetPlayerScore(playerTwoMeta);
-        SpawnPlayer(playerOneController, 1, playerOneSpawnPosition);
-        SpawnPlayer(playerTwoController, -1, playerTwoSpawnPosition);
+        playerOneSpawningIndex = (playerOneSpawningIndex + 1) % 2;
+        playerTwoSpawningIndex = (playerTwoSpawningIndex + 1) % 2;
+        SpawnPlayer(playerOneController, 1, playerOneSpawningPoints[playerOneSpawningIndex]);
+        SpawnPlayer(playerTwoController, -1, playerTwoSpawningPoints[playerTwoSpawningIndex]);
         currentState = GameState.RoundInProgress;
     }
 
