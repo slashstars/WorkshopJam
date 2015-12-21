@@ -91,7 +91,7 @@ public class Master : MonoBehaviour
                 var aliveMeta = playerOneController.IsDead() ? playerTwoMeta : playerOneMeta;
                 aliveMeta.IncrementScore();
 
-                gui.SetTempCenterMessage(deadMeta.playerName + " " + endTexts[Random.Range(0, endTexts.Length-1)] + "!", 3);
+                gui.SetTempCenterMessage(deadMeta.playerName + " " + endTexts[Random.Range(0, endTexts.Length)] + "!", 3);
 
                 Invoke("Reset", 3);
             }

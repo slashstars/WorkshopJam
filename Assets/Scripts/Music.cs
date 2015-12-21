@@ -6,30 +6,40 @@ using System.IO;
 public class Music : MonoBehaviour
 {
     AudioSource audioSource;
-    List<string> playList;
+    string[] playList;
     public string fullPathToMusicFolder = @"Assets\Resources\Music";
-    private AudioClip nextSong;
+    
     private AudioClip currentSong;
+    private AudioClip nextSong;
+    private int nextSongIndex = 0;
+    private ResourceRequest nextSongRequest;
 
     // Use this for initialization
     void Start()
     {
-        playList = new List<string>();
-        BuildPlayList();
+        //Collect all song files from Music dir
+        var musicDir = new DirectoryInfo(fullPathToMusicFolder);
+        var musicFiles = musicDir.GetFiles();
+        var tempList = new List<string>();
+        foreach (FileInfo file in musicFiles)
+        {
+            if (file.Extension != ".meta")
+            {
+                tempList.Add(Path.GetFileNameWithoutExtension(file.FullName));
+            }
+        }
 
+        playList = tempList.ToArray();
         audioSource = GetComponent<AudioSource>();
-        currentSong = Resources.Load<AudioClip>(GetRandomSongPathFromPlayList());
+        currentSong = Resources.Load<AudioClip>(GetNextSongPath());
         audioSource.PlayOneShot(currentSong);
-
-        print(Time.time);
+        nextSongRequest = Resources.LoadAsync<AudioClip>(GetNextSongPath());
         StartCoroutine(LoadNextSong());
-        print(Time.time);
     }
 
     // Update is called once per frame
     void Update()
     {
-
         if (!audioSource.isPlaying)
         {
             if (nextSong == null)
@@ -38,52 +48,38 @@ public class Music : MonoBehaviour
             currentSong = nextSong;
             audioSource.PlayOneShot(currentSong);
 
-            print("1:" + Time.time);
-            StartCoroutine(LoadNextSong());
-            print("1" + Time.time);
+            nextSongRequest = Resources.LoadAsync<AudioClip>(GetNextSongPath());
+            StartCoroutine(LoadNextSong());            
         }
     }
 
-    private string GetRandomSongPathFromPlayList()
+    private string GetNextSongPath()
     {
-        int index = Random.Range(0, playList.Count);
-
-        var songName = playList[index];
-        playList.RemoveAt(index);
-
-        if (playList.Count == 0)
-            BuildPlayList();
-
-        return "Music\\" + songName;
-    }
-
-    private void BuildPlayList()
-    {
-        var info = new DirectoryInfo(fullPathToMusicFolder);
-        var fileInfo = info.GetFiles();
-
-        foreach (FileInfo f in fileInfo)
+        //if at the start of the playlist, shuffle it
+        if(nextSongIndex == 0)
         {
-            if (!f.Name.Contains("meta"))
+            for (var i = 0; i < playList.Length; i++)
             {
-                var fileNameNoExtension = Path.GetFileNameWithoutExtension(f.FullName);
-                playList.Add(fileNameNoExtension);
+                int j = Random.Range(i, playList.Length);
+                var temp = playList[i];
+                playList[i] = playList[j];
+                playList[j] = temp;
             }
         }
+
+        string path = "Music\\" + playList[nextSongIndex];
+        nextSongIndex = nextSongIndex == playList.Length - 1 ? 0 : ++nextSongIndex;
+
+        return path;
     }
 
     IEnumerator LoadNextSong()
     {
-        var res = Resources.LoadAsync<AudioClip>(GetRandomSongPathFromPlayList());
-
-        while (!res.isDone)
+        if (!nextSongRequest.isDone)
         {
-            print(res.isDone);
             yield return null;
         }
 
-        nextSong = (AudioClip)res.asset;
+        nextSong = (AudioClip)nextSongRequest.asset;
     }
-
-
 }

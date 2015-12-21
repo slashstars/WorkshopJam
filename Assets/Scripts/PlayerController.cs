@@ -7,14 +7,16 @@ public class PlayerController : MonoBehaviour
     private InputSet inputSet;
     public float movementSpeed = 2;
     public float jumpForce = 1;
-    public float meleeForce = 5;
-    public float fireForce = 5;
-    public float cooldown = 0;
+    private float meleeForce = 7;
+    private float fireForce = 5;
+    private float cooldown = 0.8f;
     private Rigidbody2D body;
     private Animator anim;
     private bool dead = false;
+    private bool freezeControls = false;
     private float currentCooldownValue;
     private readonly Vector3 bulletOffset = new Vector3(0.1f, 0.011f, 0);   
+
 
     // Use this for initialization
     void Start()
@@ -29,14 +31,14 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         float h = Input.GetAxis(inputSet.horizontalAxis);
-        if (Mathf.Abs(h) > 0.2 && !dead)
+        if (Mathf.Abs(h) > 0.2 && !dead && !freezeControls)
             Move(h);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!dead)
+        if (!dead && !freezeControls)
         {
             if (Input.GetButtonDown(inputSet.fire) && currentCooldownValue <= 0)
                 Melee();
@@ -95,13 +97,20 @@ public class PlayerController : MonoBehaviour
     private void Melee()
     {
         anim.SetTrigger("melee");
+        if (!IsGrounded())
+        {
+
+        }
         ResetCooldown();
     }
 
     private void Fire()
     {
         anim.SetTrigger("fire");
+        if (!IsGrounded())
+        {
 
+        }
         var position = new Vector3(transform.position.x + transform.localScale.x * bulletOffset.x,
             transform.position.y - bulletOffset.y, 0);
         Transform bullet = (Transform)Instantiate(bulletPrefab, position, transform.rotation);
@@ -169,5 +178,15 @@ public class PlayerController : MonoBehaviour
     public bool IsDead()
     {
         return dead;
+    }
+
+    public void FreezeControls()
+    {
+        freezeControls = true;
+    }
+
+    public void UnfreezeControls()
+    {
+        freezeControls = false;
     }
 }
