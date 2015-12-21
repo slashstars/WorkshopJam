@@ -8,7 +8,7 @@ public class Music : MonoBehaviour
     AudioSource audioSource;
     string[] playList;
     public string fullPathToMusicFolder = @"Assets\Resources\Music";
-    
+     
     private AudioClip currentSong;
     private AudioClip nextSong;
     private int nextSongIndex = 0;
@@ -75,11 +75,13 @@ public class Music : MonoBehaviour
 
     IEnumerator LoadNextSong()
     {
-        if (!nextSongRequest.isDone)
-        {
-            yield return null;
-        }
+        yield return new WaitUntil(NextSongRequestLoaded);
 
         nextSong = (AudioClip)nextSongRequest.asset;
+    }
+
+    bool NextSongRequestLoaded()
+    {
+        return nextSongRequest.isDone;
     }
 }
